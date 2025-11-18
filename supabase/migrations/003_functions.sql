@@ -1,4 +1,4 @@
--- Function to generate default availability for all weekend nights over 6 months
+-- Function to generate default availability for all days over 6 months
 -- This function will be called when a band is created or when calendar is initialized
 CREATE OR REPLACE FUNCTION generate_default_availability(p_band_id UUID)
 RETURNS VOID AS $$
@@ -6,21 +6,15 @@ DECLARE
   start_date DATE := CURRENT_DATE;
   end_date DATE := CURRENT_DATE + INTERVAL '6 months';
   curr_date DATE;
-  day_of_week INTEGER;
 BEGIN
   -- Loop through all dates in the next 6 months
   curr_date := start_date;
   
   WHILE curr_date <= end_date LOOP
-    -- Get day of week (0 = Sunday, 5 = Friday, 6 = Saturday)
-    day_of_week := EXTRACT(DOW FROM curr_date);
-    
-    -- If it's Friday (5), Saturday (6), or Sunday (0), insert as available
-    IF day_of_week IN (0, 5, 6) THEN
-      INSERT INTO band_calendars (band_id, date, is_available)
-      VALUES (p_band_id, curr_date, TRUE)
-      ON CONFLICT (band_id, date) DO NOTHING;
-    END IF;
+    -- Insert all days (Monday through Sunday) as available
+    INSERT INTO band_calendars (band_id, date, is_available)
+    VALUES (p_band_id, curr_date, TRUE)
+    ON CONFLICT (band_id, date) DO NOTHING;
     
     curr_date := curr_date + INTERVAL '1 day';
   END LOOP;
@@ -119,6 +113,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to update bandmate availability by token (for anonymous access)
 -- SECURITY DEFINER allows the function to bypass RLS
+-- Optimized to use a single query for better performance
 CREATE OR REPLACE FUNCTION update_bandmate_availability_by_token(
   p_token TEXT,
   p_date DATE,
@@ -126,24 +121,24 @@ CREATE OR REPLACE FUNCTION update_bandmate_availability_by_token(
 )
 RETURNS UUID AS $$
 DECLARE
-  v_bandmate_id UUID;
   v_availability_id UUID;
 BEGIN
-  -- Get bandmate ID from token
-  SELECT bandmates.id INTO v_bandmate_id
-  FROM bandmates
-  WHERE bandmates.token = p_token;
-  
-  IF v_bandmate_id IS NULL THEN
-    RAISE EXCEPTION 'Invalid token';
-  END IF;
-  
-  -- Upsert availability
+  -- Upsert availability in a single query using subquery to get bandmate_id
   INSERT INTO bandmate_availability (bandmate_id, date, is_unavailable)
-  VALUES (v_bandmate_id, p_date, p_is_unavailable)
+  SELECT 
+    bm.id,
+    p_date,
+    p_is_unavailable
+  FROM bandmates bm
+  WHERE bm.token = p_token
   ON CONFLICT (bandmate_id, date) DO UPDATE
   SET is_unavailable = p_is_unavailable
   RETURNING id INTO v_availability_id;
+  
+  -- If no row was inserted/updated, the token was invalid
+  IF v_availability_id IS NULL THEN
+    RAISE EXCEPTION 'Invalid token';
+  END IF;
   
   RETURN v_availability_id;
 END;
@@ -177,6 +172,34 @@ BEGIN
   FROM band_calendars
   WHERE band_calendars.band_id = v_band_id
   ORDER BY band_calendars.date ASC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to get final band availability considering bandmate unavailability
+-- SECURITY DEFINER allows the function to bypass RLS for public calendar viewing
+CREATE OR REPLACE FUNCTION get_band_availability_with_bandmates(p_band_id UUID)
+RETURNS TABLE (
+  date DATE,
+  is_available BOOLEAN
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    bc.date,
+    CASE 
+      WHEN bc.is_available = TRUE AND NOT EXISTS (
+        SELECT 1 
+        FROM bandmate_availability ba
+        JOIN bandmates bm ON bm.id = ba.bandmate_id
+        WHERE bm.band_id = p_band_id
+        AND ba.date = bc.date
+        AND ba.is_unavailable = TRUE
+      ) THEN TRUE
+      ELSE FALSE
+    END as is_available
+  FROM band_calendars bc
+  WHERE bc.band_id = p_band_id
+  ORDER BY bc.date ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

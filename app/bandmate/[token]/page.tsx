@@ -68,7 +68,7 @@ export default async function BandmatePage({
             {bandmate.name ? `${bandmate.name}'s ` : ''}Availability
           </p>
           <p className="text-base text-wavelength-text-muted mt-2 font-normal">
-            Mark dates when you're unavailable. Only Friday, Saturday, and Sunday nights are shown.
+            Mark dates when you're unavailable.
           </p>
         </div>
 
@@ -78,6 +78,7 @@ export default async function BandmatePage({
             bandId={(bandmate.bands as any).id}
             bandCalendar={bandCalendarMap}
             initialUnavailability={bandmateAvailabilityMap}
+            bandName={(bandmate.bands as any).name}
           />
         </div>
       </div>

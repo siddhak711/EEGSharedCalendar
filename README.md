@@ -5,7 +5,7 @@ A calendar application specifically designed for bands to manage their availabil
 ## Features
 
 - **Band Management**: Band leaders can create and manage multiple bands
-- **Availability Calendar**: Manage availability for the next 6 months, focusing on Friday, Saturday, and Sunday nights
+- **Availability Calendar**: Manage availability for the next 6 months (all days of the week)
 - **Bandmate Collaboration**: Share calendar links with bandmates who can mark their unavailability
 - **Calendar Submission**: Submit calendars to make them visible to other band leaders
 - **Bill Requests**: Request to join other bands on their bills and accept/reject requests

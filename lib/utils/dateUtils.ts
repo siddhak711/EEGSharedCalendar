@@ -1,7 +1,7 @@
-import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns'
+import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay, startOfWeek, endOfWeek } from 'date-fns'
 
 /**
- * Get all Friday, Saturday, and Sunday nights for the next 6 months
+ * Get all days for the next 6 months
  * Returns dates as YYYY-MM-DD strings
  */
 export function getWeekendNightsForNext6Months(): string[] {
@@ -13,19 +13,13 @@ export function getWeekendNightsForNext6Months(): string[] {
   
   const allDays = eachDayOfInterval({ start: startDate, end: endDate })
   
-  // Filter for Friday (5), Saturday (6), and Sunday (0)
-  const weekendNights = allDays
-    .filter(day => {
-      const dayOfWeek = getDay(day)
-      return dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0
-    })
-    .map(day => format(day, 'yyyy-MM-dd'))
-  
-  return weekendNights
+  // Return all days (Monday through Sunday)
+  return allDays.map(day => format(day, 'yyyy-MM-dd'))
 }
 
 /**
  * Check if a date is a Friday, Saturday, or Sunday
+ * @deprecated This function is kept for backward compatibility but all days are now supported
  */
 export function isWeekendNight(date: Date | string): boolean {
   const dateObj = typeof date === 'string' ? new Date(date) : date
@@ -75,5 +69,58 @@ export function groupDatesByMonth(dates: string[]): Record<string, string[]> {
   })
   
   return grouped
+}
+
+/**
+ * Group dates by weeks (7 days per row) for calendar display
+ * Returns an array of weeks, where each week is an array of 7 dates (or null for padding)
+ */
+export function groupDatesByWeeks(dates: string[]): (string | null)[][] {
+  if (dates.length === 0) return []
+  
+  const weeks: (string | null)[][] = []
+  const dateSet = new Set(dates)
+  
+  // Get the first and last dates
+  const firstDate = new Date(dates[0])
+  const lastDate = new Date(dates[dates.length - 1])
+  
+  // Get the start of the week containing the first date (Sunday)
+  const weekStart = startOfWeek(firstDate, { weekStartsOn: 0 })
+  // Get the end of the week containing the last date (Saturday)
+  const weekEnd = endOfWeek(lastDate, { weekStartsOn: 0 })
+  
+  // Generate all days from weekStart to weekEnd
+  const allDays = eachDayOfInterval({ start: weekStart, end: weekEnd })
+  
+  // Group into weeks
+  let currentWeek: (string | null)[] = []
+  allDays.forEach(day => {
+    const dateStr = format(day, 'yyyy-MM-dd')
+    
+    // If this date is in our date set, include it; otherwise use null for padding
+    if (dateSet.has(dateStr)) {
+      currentWeek.push(dateStr)
+    } else {
+      currentWeek.push(null)
+    }
+    
+    // If we've filled a week (7 days), start a new week
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek)
+      currentWeek = []
+    }
+  })
+  
+  // Add the last incomplete week if it exists
+  if (currentWeek.length > 0) {
+    // Pad to 7 days
+    while (currentWeek.length < 7) {
+      currentWeek.push(null)
+    }
+    weeks.push(currentWeek)
+  }
+  
+  return weeks
 }
 

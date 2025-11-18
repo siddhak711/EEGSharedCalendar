@@ -55,33 +55,30 @@ function SampleCalendar() {
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day)
       const dayOfWeek = getDay(date)
-      // Friday (5), Saturday (6), Sunday (0)
-      if (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) {
-        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-        const dateString = format(date, 'yyyy-MM-dd')
-        
-        // Check if any band is available on this date
-        let hasAvailableBand = false
-        calendarsByBand.forEach((calendar) => {
-          if (calendar.get(dateString) === true) {
-            hasAvailableBand = true
-          }
-        })
-        
-        dates.push({ 
-          date: day, 
-          day: dayNames[dayOfWeek], 
-          available: hasAvailableBand, 
-          id: dates.length,
-          dateString 
-        })
-      }
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      const dateString = format(date, 'yyyy-MM-dd')
+      
+      // Check if any band is available on this date
+      let hasAvailableBand = false
+      calendarsByBand.forEach((calendar) => {
+        if (calendar.get(dateString) === true) {
+          hasAvailableBand = true
+        }
+      })
+      
+      dates.push({ 
+        date: day, 
+        day: dayNames[dayOfWeek], 
+        available: hasAvailableBand, 
+        id: dates.length,
+        dateString 
+      })
     }
     
     return {
       currentMonth: format(today, 'MMMM yyyy'),
       monthName: format(today, 'MMMM'),
-      weekendDates: dates.slice(0, 12) // Show first 12 weekend dates
+      weekendDates: dates.slice(0, 12) // Show first 12 dates
     }
   }, [calendarsByBand])
 
@@ -289,7 +286,7 @@ function SampleCalendar() {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-x-hidden overflow-y-visible">
       {/* Brand */}
       <div className="fixed top-8 sm:top-10 left-8 sm:left-10 z-50">
         <div className="relative group cursor-default">
@@ -315,17 +312,17 @@ export default function LandingPage() {
       </div>
 
       {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center px-4 pt-20 sm:pt-24 pb-12 sm:pb-16 relative">
+      <section className="min-h-screen flex items-center justify-center px-4 pt-20 sm:pt-24 pb-12 sm:pb-16 relative overflow-visible">
         <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-[1.1] tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-[1.2] tracking-tight overflow-visible">
             Fill The Bill.{' '}
             <br />
             <span className="text-[#A78BFA]">Pack The Crowd.</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-base sm:text-lg md:text-xl text-[#9CA3AF] max-w-[700px] mx-auto leading-relaxed px-2">
+          <p className="text-base sm:text-lg md:text-xl text-[#9CA3AF] max-w-[700px] mx-auto leading-relaxed px-2 overflow-visible">
             Sync your band's schedule, find the perfect gig dates, and keep everyone in harmony. 
             The coolest way for bands to manage availability and collaborate on shows.
           </p>

@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to create band' }, { status: 500 })
     }
 
-    // Generate default availability for all weekend nights over 6 months
+    // Generate default availability for all days over 6 months
     const { error: calendarError } = await supabase.rpc('generate_default_availability', {
       p_band_id: band.id,
     })

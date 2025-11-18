@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Toast from '@/components/ui/Toast'
 
 interface ShareBandmateLinkProps {
   bandId: string
@@ -13,6 +14,7 @@ export default function ShareBandmateLink({ bandId }: ShareBandmateLinkProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [createdLink, setCreatedLink] = useState<string | null>(null)
+  const [showToast, setShowToast] = useState(false)
 
   const handleCreateLink = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,15 +52,29 @@ export default function ShareBandmateLink({ bandId }: ShareBandmateLinkProps) {
     }
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    alert('Link copied to clipboard!')
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setShowToast(true)
+    } catch (error) {
+      console.error('Failed to copy:', error)
+      setError('Failed to copy link to clipboard')
+    }
   }
 
   return (
-    <div className="bg-wavelength-card rounded-2xl shadow-xl p-8">
-      <h3 className="text-xl font-display font-bold text-wavelength-text mb-6">Create New Bandmate Link</h3>
-      <form onSubmit={handleCreateLink} className="space-y-6">
+    <>
+      {showToast && (
+        <Toast
+          message="Link copied to clipboard!"
+          type="success"
+          onClose={() => setShowToast(false)}
+          duration={3000}
+        />
+      )}
+      <div className="bg-wavelength-card rounded-2xl shadow-xl p-8">
+        <h3 className="text-xl font-display font-bold text-wavelength-text mb-6">Create New Bandmate Link</h3>
+        <form onSubmit={handleCreateLink} className="space-y-6">
         <div>
           <label htmlFor="bandmate-name" className="block text-sm font-medium text-wavelength-text-muted mb-3">
             Bandmate Name (optional)
@@ -107,6 +123,7 @@ export default function ShareBandmateLink({ bandId }: ShareBandmateLinkProps) {
         </button>
       </form>
     </div>
+    </>
   )
 }
 

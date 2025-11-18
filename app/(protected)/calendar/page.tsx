@@ -31,18 +31,34 @@ export default async function MainCalendarPage() {
     console.error('Error fetching calendars:', calendarsError)
   }
 
-  // Group calendars by band
+  // Group calendars by band, considering bandmate availability
   const calendarsByBand = new Map<string, Map<string, boolean>>()
   
-  ;(bands || []).forEach((band) => {
-    const bandCalendar = new Map<string, boolean>()
-    ;(calendars || [])
-      .filter((cal) => cal.band_id === band.id)
-      .forEach((cal) => {
-        bandCalendar.set(cal.date, cal.is_available)
+  // Use database function to get final availability (band calendar + bandmate unavailability)
+  for (const band of bands || []) {
+    const { data: finalAvailability, error: availabilityError } = await supabase.rpc(
+      'get_band_availability_with_bandmates',
+      { p_band_id: band.id }
+    )
+
+    if (availabilityError) {
+      console.error(`Error fetching final availability for band ${band.id}:`, availabilityError)
+      // Fallback to regular calendar if function fails
+      const bandCalendar = new Map<string, boolean>()
+      ;(calendars || [])
+        .filter((cal) => cal.band_id === band.id)
+        .forEach((cal) => {
+          bandCalendar.set(cal.date, cal.is_available)
+        })
+      calendarsByBand.set(band.id, bandCalendar)
+    } else {
+      const bandCalendar = new Map<string, boolean>()
+      ;(finalAvailability || []).forEach((avail: { date: string; is_available: boolean }) => {
+        bandCalendar.set(avail.date, avail.is_available)
       })
-    calendarsByBand.set(band.id, bandCalendar)
-  })
+      calendarsByBand.set(band.id, bandCalendar)
+    }
+  }
 
   // Get user's bands
   const { data: userBands, error: userBandsError } = await supabase
@@ -78,37 +94,39 @@ export default async function MainCalendarPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
-          <h2 className="text-4xl font-display font-bold text-wavelength-text mb-3">All Submitted Bands</h2>
-          <p className="text-lg text-wavelength-text-muted font-normal">
+          <h2 className="text-4xl font-display font-bold text-white mb-3">All Submitted Bands</h2>
+          <p className="text-lg text-gray-400 font-normal">
             View availability calendars for all submitted bands. Click on a date to request to join a bill.
           </p>
         </div>
 
         {bands && bands.length > 0 && (
-          <div className="mb-8 p-6 bg-wavelength-card rounded-2xl shadow-xl">
-            <h3 className="text-xl font-display font-bold text-wavelength-text mb-4">Band Legend</h3>
-            <div className="flex flex-wrap gap-3">
-              {bands.map((band) => (
-                <div
-                  key={band.id}
-                  className={`px-4 py-2 rounded-2xl border-2 font-semibold text-sm backdrop-blur-sm ${bandColors.get(band.id)}`}
-                >
-                  {band.name}
-                </div>
-              ))}
+          <div className="mb-8 relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-3xl p-6 border border-white/20 shadow-2xl overflow-hidden">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
+            <div className="relative z-10">
+              <h3 className="text-xl font-display font-bold text-white mb-4">Band Legend</h3>
+              <div className="flex flex-wrap gap-3">
+                {bands.map((band) => (
+                  <div
+                    key={band.id}
+                    className={`px-4 py-2 rounded-2xl border-2 font-semibold text-sm backdrop-blur-sm ${bandColors.get(band.id)}`}
+                  >
+                    {band.name}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        <div className="bg-wavelength-card rounded-2xl shadow-xl p-8">
-          <MainCalendar
-            bands={bands || []}
-            calendarsByBand={calendarsByBand}
-            bandColors={bandColors}
-            currentUserId={user.id}
-            userBands={userBands || []}
-          />
-        </div>
+        <MainCalendar
+          bands={bands || []}
+          calendarsByBand={calendarsByBand}
+          bandColors={bandColors}
+          currentUserId={user.id}
+          userBands={userBands || []}
+        />
       </main>
     </div>
   )

@@ -25,19 +25,73 @@ export default async function BandCalendarPage({
     notFound()
   }
 
-  // Fetch the band's calendar
-  const { data: calendar, error: calendarError } = await supabase
-    .from('band_calendars')
-    .select('*')
-    .eq('band_id', params.id)
-    .order('date', { ascending: true })
+  // Fetch the band's calendar with bandmate availability factored in
+  const { data: finalAvailability, error: availabilityError } = await supabase.rpc(
+    'get_band_availability_with_bandmates',
+    { p_band_id: params.id }
+  )
 
-  if (calendarError) {
-    console.error('Error fetching calendar:', calendarError)
+  if (availabilityError) {
+    console.error('Error fetching final availability:', availabilityError)
+    // Fallback to regular calendar if function fails
+    const { data: calendar, error: calendarError } = await supabase
+      .from('band_calendars')
+      .select('*')
+      .eq('band_id', params.id)
+      .order('date', { ascending: true })
+
+    if (calendarError) {
+      console.error('Error fetching calendar:', calendarError)
+    }
+
+    const calendarMap = new Map(
+      (calendar || []).map((item) => [item.date, item.is_available])
+    )
+    
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <div className="flex items-center gap-3 mb-3">
+                  <h2 className="text-4xl font-display font-bold text-wavelength-text">{band.name}</h2>
+                  {band.calendar_submitted && (
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
+                      Submitted
+                    </span>
+                  )}
+                </div>
+                <p className="text-lg text-wavelength-text-muted font-normal">
+                  Manage your band's availability. Click on dates to toggle availability.
+                </p>
+              </div>
+              {!band.calendar_submitted && (
+                <SubmitCalendarButton bandId={band.id} />
+              )}
+            </div>
+          </div>
+
+          <div className="bg-wavelength-card rounded-2xl shadow-xl p-8">
+            <Calendar
+              bandId={band.id}
+              initialAvailability={calendarMap}
+              readOnly={false}
+              showRefreshButton={true}
+            />
+          </div>
+        </main>
+      </div>
+    )
   }
 
   const calendarMap = new Map(
-    (calendar || []).map((item) => [item.date, item.is_available])
+    (finalAvailability || []).map((avail: { date: string; is_available: boolean }) => [
+      avail.date,
+      avail.is_available,
+    ])
   )
 
   return (
@@ -58,7 +112,6 @@ export default async function BandCalendarPage({
               </div>
               <p className="text-lg text-wavelength-text-muted font-normal">
                 Manage your band's availability. Click on dates to toggle availability.
-                Only Friday, Saturday, and Sunday nights are shown.
               </p>
             </div>
             {!band.calendar_submitted && (
@@ -71,7 +124,8 @@ export default async function BandCalendarPage({
           <Calendar
             bandId={band.id}
             initialAvailability={calendarMap}
-            readOnly={band.calendar_submitted}
+            readOnly={false}
+            showRefreshButton={true}
           />
         </div>
       </main>

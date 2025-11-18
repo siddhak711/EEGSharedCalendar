@@ -20,18 +20,18 @@ export default function Toast({ message, type, onClose, duration = 3000 }: Toast
 
   const bgColor =
     type === 'success'
-      ? 'bg-green-50 border-green-200 text-green-800'
+      ? 'bg-green-500/20 border-green-500/50 text-green-200'
       : type === 'error'
-      ? 'bg-red-50 border-red-200 text-red-800'
-      : 'bg-blue-50 border-blue-200 text-blue-800'
+      ? 'bg-red-500/20 border-red-500/50 text-red-200'
+      : 'bg-blue-500/20 border-blue-500/50 text-blue-200'
 
   return (
-    <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg border ${bgColor} animate-slide-in`}>
+    <div className={`fixed top-4 right-4 z-50 p-4 rounded-xl shadow-2xl border backdrop-blur-md ${bgColor} animate-slide-in`}>
       <div className="flex items-center justify-between gap-4">
-        <p className="text-sm font-medium">{message}</p>
+        <p className="text-sm font-semibold">{message}</p>
         <button
           onClick={onClose}
-          className="text-current opacity-70 hover:opacity-100 focus:outline-none"
+          className="text-current opacity-70 hover:opacity-100 focus:outline-none transition-opacity"
           aria-label="Close"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
