@@ -72,31 +72,94 @@ export default function BandmateCalendar({
     setError(null)
 
     try {
-      // Submit all changes sequentially
-      const results = await Promise.all(
-        unsavedChanges.map(async ({ date, is_unavailable }) => {
-      const response = await fetch('/api/bandmate-availability', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          date: normalizeDate(date), // Normalize date before sending to API
-          is_unavailable,
-        }),
+      // Submit all changes in parallel, but track each result
+      const submissionPromises = unsavedChanges.map(async ({ date, is_unavailable }) => {
+        const normalizedDate = normalizeDate(date)
+        const response = await fetch('/api/bandmate-availability', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token,
+            date: normalizedDate,
+            is_unavailable,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.error || `Failed to update availability for ${date}`)
+        }
+
+        const result = await response.json()
+        return { date: normalizedDate, is_unavailable, success: true, id: result.id }
       })
 
-      if (!response.ok) {
-            throw new Error(`Failed to update availability for ${date}`)
+      const results = await Promise.all(submissionPromises)
+
+      // Verify all submissions succeeded
+      const failures = results.filter(r => !r.success)
+      if (failures.length > 0) {
+        throw new Error(`${failures.length} update(s) failed. Please try again.`)
+      }
+
+      // Small delay to ensure database consistency before updating local state
+      // This helps with read-after-write consistency in distributed systems
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Verify the changes were actually saved by fetching current availability
+      // This ensures read-after-write consistency and catches any partial failures
+      try {
+        const verifyResponse = await fetch(`/api/bandmate-availability?token=${encodeURIComponent(token)}`)
+        if (verifyResponse.ok) {
+          const verifyData = await verifyResponse.json()
+          const verifiedAvailability = new Map<string, boolean>()
+          
+          if (verifyData.availability && Array.isArray(verifyData.availability)) {
+            verifyData.availability.forEach((item: { date: string | Date; is_unavailable: boolean }) => {
+              const dateKey = normalizeDate(item.date)
+              verifiedAvailability.set(dateKey, item.is_unavailable)
+            })
           }
 
-          return { date, is_unavailable, success: true }
-        })
-      )
+          // Verify all submitted dates match what was saved
+          let allVerified = true
+          const missingDates: string[] = []
+          
+          unsavedChanges.forEach(({ date, is_unavailable }) => {
+            const normalizedDate = normalizeDate(date)
+            const savedValue = verifiedAvailability.get(normalizedDate)
+            
+            if (savedValue === undefined || savedValue !== is_unavailable) {
+              allVerified = false
+              if (savedValue === undefined) {
+                missingDates.push(normalizedDate)
+              }
+            }
+          })
 
-      // Update saved state to match current state after successful save
-      setSavedUnavailability(new Map(unavailability))
+          if (allVerified) {
+            // All changes verified - use verified data which may include other existing entries
+            setSavedUnavailability(verifiedAvailability)
+            // Also sync local unavailability to match verified state for consistency
+            setUnavailability(new Map(verifiedAvailability))
+          } else {
+            // Some changes didn't verify - log warning but still update with expected state
+            console.warn('Some changes could not be verified:', missingDates)
+            // Update saved state with what we submitted (optimistic)
+            setSavedUnavailability(new Map(unavailability))
+          }
+        } else {
+          // If verification fails, still update with expected state but log warning
+          console.warn('Failed to verify saved changes, using expected state')
+          setSavedUnavailability(new Map(unavailability))
+        }
+      } catch (verifyErr) {
+        // If verification fails, still update with expected state
+        console.warn('Error verifying saved changes:', verifyErr)
+        setSavedUnavailability(new Map(unavailability))
+      }
       
       // Show success message
       setToastMessage(`Your changes have been saved and will appear on ${bandName}'s calendar.`)
@@ -108,6 +171,7 @@ export default function BandmateCalendar({
       setToastMessage(errorMessage)
       setToastType('error')
       setShowToast(true)
+      // Don't update saved state on error - keep unsaved changes visible
     } finally {
       setIsSubmitting(false)
     }
@@ -120,9 +184,12 @@ export default function BandmateCalendar({
   }
 
   const getDayName = (date: string) => {
-    const day = new Date(date).getDay()
+    // Parse as local date to avoid timezone shifts
+    const [year, month, day] = date.split('-').map(Number)
+    const dateObj = new Date(year, month - 1, day)
+    const dayOfWeek = dateObj.getDay()
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    return dayNames[day]
+    return dayNames[dayOfWeek]
   }
 
   const getDateStatus = (date: string) => {

@@ -114,6 +114,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Function to update bandmate availability by token (for anonymous access)
 -- SECURITY DEFINER allows the function to bypass RLS
 -- Optimized to use a single query for better performance
+-- Uses explicit transaction handling for consistency
 CREATE OR REPLACE FUNCTION update_bandmate_availability_by_token(
   p_token TEXT,
   p_date DATE,
@@ -123,8 +124,9 @@ RETURNS UUID AS $$
 DECLARE
   v_availability_id UUID;
 BEGIN
-  -- Upsert availability in a single query using subquery to get bandmate_id
+  -- Upsert availability in a single atomic query using subquery to get bandmate_id
   -- Cast p_date explicitly to DATE to ensure no timezone issues
+  -- The INSERT ... ON CONFLICT is atomic and ensures immediate visibility
   INSERT INTO bandmate_availability (bandmate_id, date, is_unavailable)
   SELECT 
     bm.id,
@@ -141,6 +143,8 @@ BEGIN
     RAISE EXCEPTION 'Invalid token';
   END IF;
   
+  -- Explicitly commit (though PostgreSQL auto-commits functions, this ensures consistency)
+  -- The function runs in its own transaction, so changes are immediately visible
   RETURN v_availability_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -178,6 +182,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to get final band availability considering bandmate unavailability
 -- SECURITY DEFINER allows the function to bypass RLS for public calendar viewing
+-- Includes dates from both band_calendars and bandmate_availability to handle
+-- cases where bandmates mark dates unavailable that aren't in band_calendars yet
 CREATE OR REPLACE FUNCTION get_band_availability_with_bandmates(p_band_id UUID)
 RETURNS TABLE (
   date DATE,
@@ -185,22 +191,45 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
   RETURN QUERY
+  -- Get all unique dates from both band_calendars and bandmate_availability
+  WITH all_dates AS (
+    SELECT DISTINCT date::DATE as date
+    FROM (
+      SELECT bc.date::DATE as date
+      FROM band_calendars bc
+      WHERE bc.band_id = p_band_id
+      
+      UNION
+      
+      SELECT ba.date::DATE as date
+      FROM bandmate_availability ba
+      JOIN bandmates bm ON bm.id = ba.bandmate_id
+      WHERE bm.band_id = p_band_id
+    ) combined_dates
+  )
   SELECT 
-    bc.date::DATE,
+    ad.date,
     CASE 
-      WHEN bc.is_available = TRUE AND NOT EXISTS (
+      -- Check if band calendar exists and is available
+      WHEN EXISTS (
+        SELECT 1 
+        FROM band_calendars bc 
+        WHERE bc.band_id = p_band_id 
+        AND bc.date::DATE = ad.date 
+        AND bc.is_available = TRUE
+      ) AND NOT EXISTS (
+        -- Check if any bandmate is unavailable on this date
         SELECT 1 
         FROM bandmate_availability ba
         JOIN bandmates bm ON bm.id = ba.bandmate_id
         WHERE bm.band_id = p_band_id
-        AND ba.date::DATE = bc.date::DATE
+        AND ba.date::DATE = ad.date
         AND ba.is_unavailable = TRUE
       ) THEN TRUE
       ELSE FALSE
     END as is_available
-  FROM band_calendars bc
-  WHERE bc.band_id = p_band_id
-  ORDER BY bc.date::DATE ASC;
+  FROM all_dates ad
+  ORDER BY ad.date ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

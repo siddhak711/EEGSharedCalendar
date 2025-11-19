@@ -1,6 +1,21 @@
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, getDay, startOfWeek, endOfWeek } from 'date-fns'
 
 /**
+ * Parse a YYYY-MM-DD date string as a local date (not UTC)
+ * This prevents timezone shifts when parsing date strings
+ */
+function parseLocalDate(dateStr: string): Date {
+  // If it's in YYYY-MM-DD format, parse it as local midnight
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    // Create date at local midnight (not UTC)
+    return new Date(year, month - 1, day)
+  }
+  // For other formats, use standard parsing
+  return new Date(dateStr)
+}
+
+/**
  * Normalize a date to YYYY-MM-DD format string
  * Handles Date objects, ISO strings, and date strings
  * Avoids timezone issues by parsing date strings directly when possible
@@ -27,17 +42,15 @@ export function normalizeDate(date: string | Date): string {
         return `${year}-${month}-${day}`
       }
     }
-    // Last resort: try to parse as Date and format, but prefer UTC to match database
-    // PostgreSQL DATE values don't have timezone, so when converted to Date objects
-    // they're often at UTC midnight
+    // Last resort: try to parse and format
     try {
-      const dateObj = new Date(date)
+      const dateObj = parseLocalDate(date)
       if (!isNaN(dateObj.getTime())) {
-        // Use UTC methods since database DATE values are timezone-agnostic
-        // and typically represented as UTC midnight when converted to Date objects
-        const year = dateObj.getUTCFullYear()
-        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0')
-        const day = String(dateObj.getUTCDate()).padStart(2, '0')
+        // When converting Date back to string, use local date components
+        // to preserve the intended date (not UTC date which could be different)
+        const year = dateObj.getFullYear()
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+        const day = String(dateObj.getDate()).padStart(2, '0')
         return `${year}-${month}-${day}`
       }
     } catch {
@@ -45,12 +58,28 @@ export function normalizeDate(date: string | Date): string {
       return date
     }
   }
-  // If it's a Date object, extract UTC components since database DATE is timezone-agnostic
+  // If it's a Date object, extract local date components to preserve intended date
+  // Note: For dates from database (DATE type), they may be at UTC midnight
+  // In that case, we want to preserve the UTC date, not convert to local
   if (date instanceof Date && !isNaN(date.getTime())) {
-    const year = date.getUTCFullYear()
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-    const day = String(date.getUTCDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
+    // Check if this looks like a UTC midnight date (common for database DATE values)
+    // If hours/minutes/seconds are all 0, it might be a database DATE at UTC midnight
+    const isLikelyUTC = date.getUTCHours() === 0 && date.getUTCMinutes() === 0 && 
+                       date.getUTCSeconds() === 0 && date.getUTCMilliseconds() === 0
+    
+    if (isLikelyUTC) {
+      // Use UTC components to preserve database DATE value
+      const year = date.getUTCFullYear()
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+      const day = String(date.getUTCDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    } else {
+      // Use local components for dates created in local time
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
   }
   // Fallback: try to convert to string
   return String(date)
@@ -78,7 +107,7 @@ export function getWeekendNightsForNext6Months(): string[] {
  * @deprecated This function is kept for backward compatibility but all days are now supported
  */
 export function isWeekendNight(date: Date | string): boolean {
-  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const dateObj = typeof date === 'string' ? parseLocalDate(date) : date
   const dayOfWeek = getDay(dateObj)
   return dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0
 }
@@ -87,7 +116,7 @@ export function isWeekendNight(date: Date | string): boolean {
  * Format date for display
  */
 export function formatDateForDisplay(date: string | Date): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const dateObj = typeof date === 'string' ? parseLocalDate(date) : date
   return format(dateObj, 'EEEE, MMMM d, yyyy')
 }
 
@@ -95,7 +124,7 @@ export function formatDateForDisplay(date: string | Date): string {
  * Format date for calendar grid
  */
 export function formatDateForGrid(date: string | Date): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const dateObj = typeof date === 'string' ? parseLocalDate(date) : date
   return format(dateObj, 'MMM d')
 }
 
@@ -103,7 +132,7 @@ export function formatDateForGrid(date: string | Date): string {
  * Get month name from date
  */
 export function getMonthName(date: string | Date): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date
+  const dateObj = typeof date === 'string' ? parseLocalDate(date) : date
   return format(dateObj, 'MMMM yyyy')
 }
 
@@ -114,7 +143,7 @@ export function groupDatesByMonth(dates: string[]): Record<string, string[]> {
   const grouped: Record<string, string[]> = {}
   
   dates.forEach(date => {
-    const dateObj = new Date(date)
+    const dateObj = parseLocalDate(date)
     const monthKey = format(dateObj, 'yyyy-MM')
     
     if (!grouped[monthKey]) {
@@ -137,9 +166,9 @@ export function groupDatesByWeeks(dates: string[]): (string | null)[][] {
   const weeks: (string | null)[][] = []
   const dateSet = new Set(dates)
   
-  // Get the first and last dates
-  const firstDate = new Date(dates[0])
-  const lastDate = new Date(dates[dates.length - 1])
+  // Get the first and last dates, parsing as local dates
+  const firstDate = parseLocalDate(dates[0])
+  const lastDate = parseLocalDate(dates[dates.length - 1])
   
   // Get the start of the week containing the first date (Sunday)
   const weekStart = startOfWeek(firstDate, { weekStartsOn: 0 })

@@ -137,9 +137,12 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
   }
 
   const getDayName = (date: string) => {
-    const day = new Date(date).getDay()
+    // Parse as local date to avoid timezone shifts
+    const [year, month, day] = date.split('-').map(Number)
+    const dateObj = new Date(year, month - 1, day)
+    const dayOfWeek = dateObj.getDay()
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    return dayNames[day]
+    return dayNames[dayOfWeek]
   }
 
   return (
