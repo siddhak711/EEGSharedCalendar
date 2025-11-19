@@ -23,13 +23,13 @@ export default async function DashboardPage() {
     <div className="min-h-screen relative">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-10">
-          <h2 className="text-4xl font-display font-bold text-white mb-3">Your Bands</h2>
-          <p className="text-lg text-gray-400 font-normal">Manage your bands and their availability calendars</p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-2 sm:mb-3">Your Bands</h2>
+          <p className="text-base sm:text-lg text-gray-400 font-normal">Manage your bands and their availability calendars</p>
         </div>
 
-        <div className="mb-10">
+        <div className="mb-6 sm:mb-8 md:mb-10">
           <CreateBandForm />
         </div>
 

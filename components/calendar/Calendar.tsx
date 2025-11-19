@@ -161,9 +161,9 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 sm:space-y-10">
       {showRefreshButton && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
           <div className="flex-1">
             {lastUpdated && (
               <p className="text-xs text-wavelength-text-muted">
@@ -174,7 +174,7 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
           <button
             onClick={refreshCalendarData}
             disabled={isRefreshing}
-            className="px-4 py-2 rounded-xl bg-wavelength-primary/20 backdrop-blur-sm border border-wavelength-primary/30 text-wavelength-text hover:bg-wavelength-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2"
+            className="px-4 py-2.5 sm:py-2 rounded-xl bg-wavelength-primary/20 backdrop-blur-sm border border-wavelength-primary/30 text-wavelength-text hover:bg-wavelength-primary/30 active:bg-wavelength-primary/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center gap-2 min-h-[44px] touch-manipulation"
             title="Refresh calendar to see bandmate availability updates"
           >
             {isRefreshing ? (
@@ -208,32 +208,32 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
         </div>
       )}
       {error && (
-        <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200">
+        <div className="p-3 sm:p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-sm sm:text-base">
           {error}
         </div>
       )}
       {Object.entries(datesByMonth).map(([monthKey, dates]) => {
         const weeks = groupDatesByWeeks(dates)
         return (
-          <div key={monthKey} className="border-b border-wavelength-primary/10 pb-10 last:border-b-0">
-            <h3 className="text-2xl font-display font-bold text-wavelength-text mb-6">
+          <div key={monthKey} className="border-b border-wavelength-primary/10 pb-6 sm:pb-10 last:border-b-0">
+            <h3 className="text-xl sm:text-2xl font-display font-bold text-wavelength-text mb-4 sm:mb-6">
               {getMonthName(dates[0])}
             </h3>
             {/* Day headers */}
-            <div className="grid grid-cols-7 gap-2 mb-2">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="text-center text-sm font-semibold text-wavelength-text-muted py-2">
+                <div key={day} className="text-center text-xs sm:text-sm font-semibold text-wavelength-text-muted py-1 sm:py-2">
                   {day}
                 </div>
               ))}
             </div>
             {/* Calendar weeks */}
-            <div className="space-y-2">
+            <div className="space-y-1 sm:space-y-2">
               {weeks.map((week, weekIndex) => (
-                <div key={weekIndex} className="grid grid-cols-7 gap-2">
+                <div key={weekIndex} className="grid grid-cols-7 gap-1 sm:gap-2">
                   {week.map((date, dayIndex) => {
                     if (date === null) {
-                      return <div key={dayIndex} className="p-4 rounded-xl" />
+                      return <div key={dayIndex} className="p-2 sm:p-4 rounded-xl" />
                     }
                     const isAvailable = availability.get(date) ?? true
                     const isLoading = loading.has(date)
@@ -243,29 +243,29 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
                         key={date}
                         onClick={() => toggleAvailability(date)}
                         disabled={readOnly || isLoading}
-                        className={`relative p-4 rounded-xl border transition-all ${
+                        className={`relative p-2 sm:p-4 rounded-xl border transition-all min-h-[44px] touch-manipulation ${
                           readOnly
                             ? 'cursor-default'
-                            : 'cursor-pointer hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-wavelength-primary/50'
+                            : 'cursor-pointer hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-wavelength-primary/50'
                         } ${
                           isAvailable
-                            ? 'border-green-500/30 bg-green-500/10 hover:bg-green-500/20'
-                            : 'border-red-500/30 bg-red-500/10 hover:bg-red-500/20'
+                            ? 'border-green-500/30 bg-green-500/10 hover:bg-green-500/20 active:bg-green-500/25'
+                            : 'border-red-500/30 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/25'
                         } ${isLoading ? 'opacity-50' : ''}`}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-semibold text-wavelength-text">
+                        <div className="flex items-center justify-between mb-1 sm:mb-2">
+                          <span className="text-xs sm:text-sm font-semibold text-wavelength-text">
                             {getDayName(date)}
                           </span>
                           <AvailabilityIndicator isAvailable={isAvailable} />
                         </div>
-                        <div className="text-lg font-bold text-wavelength-text">
+                        <div className="text-base sm:text-lg font-bold text-wavelength-text">
                           {formatDateForGrid(date)}
                         </div>
                         {isLoading && (
                           <div className="absolute inset-0 flex items-center justify-center bg-wavelength-light/50 backdrop-blur-sm rounded-xl">
                             <svg
-                              className="animate-spin h-5 w-5 text-wavelength-primary"
+                              className="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-wavelength-primary"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
                               viewBox="0 0 24 24"
@@ -296,8 +296,8 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
         )
       })}
       {!readOnly && (
-        <div className="mt-6 p-4 bg-wavelength-light/30 border border-wavelength-primary/20 rounded-xl">
-          <p className="text-sm text-wavelength-text-muted font-normal">
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-wavelength-light/30 border border-wavelength-primary/20 rounded-xl">
+          <p className="text-xs sm:text-sm text-wavelength-text-muted font-normal">
             <strong className="text-wavelength-text">Tip:</strong> Click on any date to toggle availability. Green indicates available, red indicates unavailable. This calendar shows your band&apos;s availability including bandmate unavailability - dates will appear red if any bandmate is unavailable.
             {showRefreshButton && (
               <> Click the refresh button to see the latest bandmate availability updates.</>

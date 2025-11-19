@@ -63,29 +63,31 @@ export default async function BandCalendarPage({
     <div className="min-h-screen">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <h2 className="text-4xl font-display font-bold text-wavelength-text">{band.name}</h2>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-0 mb-4 sm:mb-6">
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-wavelength-text">{band.name}</h2>
                 {band.calendar_submitted && (
-                  <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
+                  <span className="px-2 sm:px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
                     Submitted
                   </span>
                 )}
               </div>
-              <p className="text-lg text-wavelength-text-muted font-normal">
+              <p className="text-base sm:text-lg text-wavelength-text-muted font-normal">
                 Manage your band&apos;s availability. Click on dates to toggle availability.
               </p>
             </div>
             {!band.calendar_submitted && (
-              <SubmitCalendarButton bandId={band.id} />
+              <div className="sm:flex-shrink-0">
+                <SubmitCalendarButton bandId={band.id} />
+              </div>
             )}
           </div>
         </div>
 
-        <div className="bg-wavelength-card rounded-2xl shadow-xl p-8">
+        <div className="bg-wavelength-card rounded-2xl shadow-xl p-4 sm:p-6 md:p-8">
           <Calendar
             bandId={band.id}
             initialAvailability={calendarMap}

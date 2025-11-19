@@ -63,17 +63,17 @@ export default async function BillsPage() {
     <div className="min-h-screen">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <h2 className="text-4xl font-display font-bold text-wavelength-text mb-3">Bill Requests</h2>
-          <p className="text-lg text-wavelength-text-muted font-normal">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-wavelength-text mb-2 sm:mb-3">Bill Requests</h2>
+          <p className="text-base sm:text-lg text-wavelength-text-muted font-normal">
             Manage bill requests you&apos;ve sent and received from other bands.
           </p>
         </div>
 
-        <div className="space-y-10">
+        <div className="space-y-6 sm:space-y-8 md:space-y-10">
           <div>
-            <h3 className="text-2xl font-display font-bold text-wavelength-text mb-6">Received Requests</h3>
+            <h3 className="text-xl sm:text-2xl font-display font-bold text-wavelength-text mb-4 sm:mb-6">Received Requests</h3>
             <BillRequestList
               bills={receivedBills}
               type="received"
@@ -82,7 +82,7 @@ export default async function BillsPage() {
           </div>
 
           <div>
-            <h3 className="text-2xl font-display font-bold text-wavelength-text mb-6">Sent Requests</h3>
+            <h3 className="text-xl sm:text-2xl font-display font-bold text-wavelength-text mb-4 sm:mb-6">Sent Requests</h3>
             <BillRequestList
               bills={sentBills}
               type="sent"

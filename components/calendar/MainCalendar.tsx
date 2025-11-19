@@ -224,37 +224,49 @@ export default function MainCalendar({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Month Navigation with Refresh Button */}
-      <div className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-3xl p-6 border border-white/20 shadow-2xl overflow-hidden">
+      <div className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
-        <div className="relative z-10 flex items-center justify-between">
-          <button
-            onClick={goToPreviousMonth}
-            disabled={currentMonthIndex === 0}
-            className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          <div className="flex flex-col items-center gap-2">
-          <h3 className="text-3xl font-display font-bold text-white">
-            {getMonthName(currentMonthDates[0])}
-          </h3>
-            {lastUpdated && (
-              <p className="text-xs text-gray-400">
-                Updated {lastUpdated.toLocaleTimeString()}
-              </p>
-            )}
+        <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
+          <div className="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-0">
+            <button
+              onClick={goToPreviousMonth}
+              disabled={currentMonthIndex === 0}
+              className="px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 min-h-[44px] touch-manipulation flex items-center justify-center"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            
+            <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 sm:flex-none">
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white text-center">
+                {getMonthName(currentMonthDates[0])}
+              </h3>
+              {lastUpdated && (
+                <p className="text-xs text-gray-400">
+                  Updated {lastUpdated.toLocaleTimeString()}
+                </p>
+              )}
+            </div>
+            
+            <button
+              onClick={goToNextMonth}
+              disabled={currentMonthIndex === monthEntries.length - 1}
+              className="px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 min-h-[44px] touch-manipulation flex items-center justify-center"
+            >
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
             <button
               onClick={refreshCalendarData}
               disabled={isRefreshing}
-              className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 disabled:hover:scale-100 flex items-center gap-2"
+              className="px-4 py-2.5 sm:py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 flex items-center gap-2 min-h-[44px] touch-manipulation"
               title="Refresh calendar data"
             >
               {isRefreshing ? (
@@ -283,16 +295,8 @@ export default function MainCalendar({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               )}
+              <span className="text-sm hidden sm:inline">Refresh</span>
             </button>
-          <button
-            onClick={goToNextMonth}
-            disabled={currentMonthIndex === monthEntries.length - 1}
-            className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
           </div>
         </div>
       </div>
@@ -301,7 +305,7 @@ export default function MainCalendar({
       <div 
         ref={calendarRef}
         key={currentMonthKey}
-        className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 border border-white/20 shadow-2xl overflow-hidden"
+        className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10 border border-white/20 shadow-2xl overflow-hidden"
       >
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
@@ -310,20 +314,20 @@ export default function MainCalendar({
         
         <div className="relative z-10">
           {/* Day headers */}
-          <div className="grid grid-cols-7 gap-2 mb-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div key={day} className="text-center text-sm font-semibold text-gray-300 py-2">
+              <div key={day} className="text-center text-xs sm:text-sm font-semibold text-gray-300 py-1 sm:py-2">
                 {day}
               </div>
             ))}
           </div>
           {/* Calendar weeks */}
-          <div className="space-y-2">
+          <div className="space-y-1 sm:space-y-2">
             {groupDatesByWeeks(currentMonthDates).map((week, weekIndex) => (
-              <div key={weekIndex} className="grid grid-cols-7 gap-2">
+              <div key={weekIndex} className="grid grid-cols-7 gap-1 sm:gap-2">
                 {week.map((date, dayIndex) => {
                   if (date === null) {
-                    return <div key={dayIndex} className="p-5 rounded-2xl" />
+                    return <div key={dayIndex} className="p-2 sm:p-4 md:p-5 rounded-2xl" />
                   }
                   const availableBands = getAvailableBandsForDate(date)
                   const hasAvailableBands = availableBands.length > 0
@@ -342,9 +346,9 @@ export default function MainCalendar({
                       <button
                         onClick={() => hasAvailableBands && handleDateClick(date)}
                         disabled={!hasAvailableBands}
-                        className={`relative w-full p-5 rounded-2xl border-2 transition-all duration-300 backdrop-blur-sm overflow-visible group ${
+                        className={`relative w-full p-2 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 backdrop-blur-sm overflow-visible group min-h-[44px] touch-manipulation ${
                           hasAvailableBands
-                            ? 'border-green-500/50 bg-gradient-to-br from-green-500/20 via-green-500/10 to-green-500/5 shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 hover:scale-105 cursor-pointer'
+                            ? 'border-green-500/50 bg-gradient-to-br from-green-500/20 via-green-500/10 to-green-500/5 shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 hover:scale-105 active:scale-95 cursor-pointer'
                             : 'border-red-500/50 bg-gradient-to-br from-red-500/20 via-red-500/10 to-red-500/5 cursor-default'
                         }`}
                       >
@@ -354,14 +358,14 @@ export default function MainCalendar({
                         )}
                         
                         <div className="relative z-10">
-                          <div className="mb-3">
-                            <span className={`text-xs sm:text-sm font-semibold uppercase tracking-wider ${
+                          <div className="mb-1 sm:mb-2 md:mb-3">
+                            <span className={`text-xs font-semibold uppercase tracking-wider ${
                               hasAvailableBands ? 'text-white' : 'text-red-200'
                             }`}>
                               {getDayName(date)}
                             </span>
                           </div>
-                          <div className={`text-2xl font-bold transition-colors duration-300 ${
+                          <div className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold transition-colors duration-300 ${
                             hasAvailableBands ? 'text-white' : 'text-red-200'
                           }`}>
                             {formatDateForGrid(date)}
@@ -370,28 +374,22 @@ export default function MainCalendar({
 
                         {/* Status indicator line */}
                         {hasAvailableBands && (
-                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-green-500 via-green-400 to-green-500 rounded-full"></div>
+                          <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 w-8 sm:w-12 h-0.5 bg-gradient-to-r from-green-500 via-green-400 to-green-500 rounded-full"></div>
                         )}
                         {!hasAvailableBands && (
-                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-red-500 via-red-400 to-red-500 rounded-full"></div>
+                          <div className="absolute bottom-1 sm:bottom-2 left-1/2 transform -translate-x-1/2 w-8 sm:w-12 h-0.5 bg-gradient-to-r from-red-500 via-red-400 to-red-500 rounded-full"></div>
                         )}
                       </button>
 
                       {/* Hover/Click tooltip showing available bands */}
                       {showBandList && availableBands.length > 0 && (
                         <div 
-                          className="absolute z-50 mt-2 w-64 bg-black/95 backdrop-blur-md rounded-xl border border-white/20 shadow-2xl p-4"
-                          style={{
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            top: 'calc(100% + 0.5rem)',
-                            pointerEvents: isClicked ? 'auto' : 'auto'
-                          }}
+                          className="absolute z-50 mt-2 w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:w-64 sm:max-w-none left-1/2 transform -translate-x-1/2 top-[calc(100%+0.5rem)] bg-black/95 backdrop-blur-md rounded-xl border border-white/20 shadow-2xl p-3 sm:p-4"
                           onMouseEnter={() => hasAvailableBands && setHoveredDate(date)}
                           onMouseLeave={() => !isClicked && setHoveredDate(null)}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="text-xs font-semibold text-gray-300 mb-3 uppercase tracking-wider">
+                          <div className="text-xs font-semibold text-gray-300 mb-2 sm:mb-3 uppercase tracking-wider">
                             Available Bands:
                           </div>
                           <div className="space-y-2">
@@ -402,7 +400,7 @@ export default function MainCalendar({
                                   e.stopPropagation()
                                   handleDateClick(date, band.id)
                                 }}
-                                className={`w-full px-4 py-2.5 rounded-xl text-sm font-semibold border-2 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg ${bandColors.get(band.id)}`}
+                                className={`w-full px-4 py-2.5 sm:py-2.5 rounded-xl text-sm font-semibold border-2 cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-lg touch-manipulation min-h-[44px] ${bandColors.get(band.id)}`}
                               >
                                 {band.name}
                               </button>

@@ -78,6 +78,11 @@ body {
     border-radius: calc(0.75rem - 2px);
     backdrop-filter: blur(8px);
   }
+
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @keyframes slide-in {

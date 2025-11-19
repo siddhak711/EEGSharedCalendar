@@ -96,25 +96,25 @@ export default async function MainCalendarPage() {
     <div className="min-h-screen">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-8">
-          <h2 className="text-4xl font-display font-bold text-white mb-3">All Submitted Bands</h2>
-          <p className="text-lg text-gray-400 font-normal">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-2 sm:mb-3">All Submitted Bands</h2>
+          <p className="text-base sm:text-lg text-gray-400 font-normal">
             View availability calendars for all submitted bands. Click on a date to request to join a bill.
           </p>
         </div>
 
         {bands && bands.length > 0 && (
-          <div className="mb-8 relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-3xl p-6 border border-white/20 shadow-2xl overflow-hidden">
+          <div className="mb-6 sm:mb-8 relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl overflow-hidden">
             {/* Animated background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
             <div className="relative z-10">
-              <h3 className="text-xl font-display font-bold text-white mb-4">Band Legend</h3>
-              <div className="flex flex-wrap gap-3">
+              <h3 className="text-lg sm:text-xl font-display font-bold text-white mb-3 sm:mb-4">Band Legend</h3>
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 {bands.map((band) => (
                   <div
                     key={band.id}
-                    className={`px-4 py-2 rounded-2xl border-2 font-semibold text-sm backdrop-blur-sm ${bandColors.get(band.id)}`}
+                    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border-2 font-semibold text-xs sm:text-sm backdrop-blur-sm ${bandColors.get(band.id)}`}
                   >
                     {band.name}
                   </div>

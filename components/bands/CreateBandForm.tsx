@@ -41,17 +41,17 @@ export default function CreateBandForm() {
   }
 
   return (
-    <div className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 border border-white/20 shadow-2xl overflow-hidden">
+    <div className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10 border border-white/20 shadow-2xl overflow-hidden">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#7C3AED]/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#00A8FF]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       
       <div className="relative z-10">
-        <h3 className="text-2xl font-display font-bold text-white mb-6">Create New Band</h3>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <h3 className="text-xl sm:text-2xl font-display font-bold text-white mb-4 sm:mb-6">Create New Band</h3>
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
-            <label htmlFor="band-name" className="block text-sm font-medium text-white mb-3">
+            <label htmlFor="band-name" className="block text-xs sm:text-sm font-medium text-white mb-2 sm:mb-3">
               Band Name
             </label>
             <input
@@ -60,20 +60,20 @@ export default function CreateBandForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-4 py-3 bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-400 font-normal transition-all"
+              className="w-full px-4 py-3 min-h-[44px] bg-black/40 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 text-white placeholder-gray-400 font-normal text-sm sm:text-base transition-all touch-manipulation"
               placeholder="Enter band name"
               disabled={loading}
             />
           </div>
           {error && (
-            <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-sm">
+            <div className="p-3 sm:p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-xs sm:text-sm">
               {error}
             </div>
           )}
           <button
             type="submit"
             disabled={loading || !name.trim()}
-            className="w-full px-6 py-3 bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/40"
+            className="w-full px-6 py-3 min-h-[44px] bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] active:opacity-90 text-white rounded-xl disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-xl hover:shadow-purple-500/40 touch-manipulation"
           >
             {loading ? 'Creating...' : 'Create Band'}
           </button>
