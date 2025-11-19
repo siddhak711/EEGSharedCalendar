@@ -75,19 +75,19 @@ export default function BandmateCalendar({
       // Submit all changes in parallel, but track each result
       const submissionPromises = unsavedChanges.map(async ({ date, is_unavailable }) => {
         const normalizedDate = normalizeDate(date)
-        const response = await fetch('/api/bandmate-availability', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            token,
+      const response = await fetch('/api/bandmate-availability', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token,
             date: normalizedDate,
             is_unavailable,
-          }),
-        })
+        }),
+      })
 
-        if (!response.ok) {
+      if (!response.ok) {
           const errorData = await response.json().catch(() => ({}))
           throw new Error(errorData.error || `Failed to update availability for ${date}`)
         }
@@ -104,15 +104,22 @@ export default function BandmateCalendar({
         throw new Error(`${failures.length} update(s) failed. Please try again.`)
       }
 
-      // Small delay to ensure database consistency before updating local state
-      // This helps with read-after-write consistency in distributed systems
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Verify the changes were actually saved by fetching current availability
+      // Verify the changes were actually saved with retry logic
       // This ensures read-after-write consistency and catches any partial failures
-      try {
-        const verifyResponse = await fetch(`/api/bandmate-availability?token=${encodeURIComponent(token)}`)
-        if (verifyResponse.ok) {
+      const verifyWithRetry = async (attempt: number, maxAttempts: number): Promise<Map<string, boolean> | null> => {
+        // Exponential backoff: 200ms, 400ms, 800ms
+        const delay = 200 * Math.pow(2, attempt - 1)
+        await new Promise(resolve => setTimeout(resolve, delay))
+
+        try {
+          const verifyResponse = await fetch(`/api/bandmate-availability?token=${encodeURIComponent(token)}`)
+          if (!verifyResponse.ok) {
+            if (attempt < maxAttempts) {
+              return verifyWithRetry(attempt + 1, maxAttempts)
+            }
+            return null
+          }
+
           const verifyData = await verifyResponse.json()
           const verifiedAvailability = new Map<string, boolean>()
           
@@ -126,45 +133,61 @@ export default function BandmateCalendar({
           // Verify all submitted dates match what was saved
           let allVerified = true
           const missingDates: string[] = []
+          const mismatchedDates: string[] = []
           
           unsavedChanges.forEach(({ date, is_unavailable }) => {
             const normalizedDate = normalizeDate(date)
             const savedValue = verifiedAvailability.get(normalizedDate)
             
-            if (savedValue === undefined || savedValue !== is_unavailable) {
+            if (savedValue === undefined) {
               allVerified = false
-              if (savedValue === undefined) {
-                missingDates.push(normalizedDate)
-              }
+              missingDates.push(normalizedDate)
+            } else if (savedValue !== is_unavailable) {
+              allVerified = false
+              mismatchedDates.push(normalizedDate)
             }
           })
 
           if (allVerified) {
-            // All changes verified - use verified data which may include other existing entries
-            setSavedUnavailability(verifiedAvailability)
-            // Also sync local unavailability to match verified state for consistency
-            setUnavailability(new Map(verifiedAvailability))
+            // All changes verified - return verified data
+            return verifiedAvailability
           } else {
-            // Some changes didn't verify - log warning but still update with expected state
-            console.warn('Some changes could not be verified:', missingDates)
-            // Update saved state with what we submitted (optimistic)
-            setSavedUnavailability(new Map(unavailability))
+            // Some changes didn't verify - retry if attempts remain
+            if (attempt < maxAttempts) {
+              console.warn(`Verification attempt ${attempt} failed. Missing: ${missingDates.join(', ')}, Mismatched: ${mismatchedDates.join(', ')}. Retrying...`)
+              return verifyWithRetry(attempt + 1, maxAttempts)
+            }
+            // All retries exhausted - return null to indicate failure
+            console.error(`Verification failed after ${maxAttempts} attempts. Missing: ${missingDates.join(', ')}, Mismatched: ${mismatchedDates.join(', ')}`)
+            return null
           }
-        } else {
-          // If verification fails, still update with expected state but log warning
-          console.warn('Failed to verify saved changes, using expected state')
-          setSavedUnavailability(new Map(unavailability))
+        } catch (verifyErr) {
+          if (attempt < maxAttempts) {
+            console.warn(`Verification attempt ${attempt} error:`, verifyErr)
+            return verifyWithRetry(attempt + 1, maxAttempts)
+          }
+          console.error('Error verifying saved changes after all retries:', verifyErr)
+          return null
         }
-      } catch (verifyErr) {
-        // If verification fails, still update with expected state
-        console.warn('Error verifying saved changes:', verifyErr)
-        setSavedUnavailability(new Map(unavailability))
       }
-      
-      // Show success message
-      setToastMessage(`Your changes have been saved and will appear on ${bandName}'s calendar.`)
-      setToastType('success')
-      setShowToast(true)
+
+      // Attempt verification with 3 retries
+      const verifiedAvailability = await verifyWithRetry(1, 3)
+
+      if (verifiedAvailability !== null) {
+        // All changes verified - use verified data which may include other existing entries
+        setSavedUnavailability(verifiedAvailability)
+        // Also sync local unavailability to match verified state for consistency
+        setUnavailability(new Map(verifiedAvailability))
+        
+        // Show success message
+        setToastMessage(`Your changes have been saved and will appear on ${bandName}'s calendar.`)
+        setToastType('success')
+        setShowToast(true)
+      } else {
+        // Verification failed after all retries - don't update state, show error
+        throw new Error('Unable to verify that your changes were saved. Please refresh the page and try again. Your changes are still pending.')
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred while saving changes'
       setError(errorMessage)
