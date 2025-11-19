@@ -111,8 +111,8 @@ export default function BandmateCalendar({
         const delay = 200 * Math.pow(2, attempt - 1)
         await new Promise(resolve => setTimeout(resolve, delay))
 
-        try {
-          const verifyResponse = await fetch(`/api/bandmate-availability?token=${encodeURIComponent(token)}`)
+      try {
+        const verifyResponse = await fetch(`/api/bandmate-availability?token=${encodeURIComponent(token)}`)
           if (!verifyResponse.ok) {
             if (attempt < maxAttempts) {
               return verifyWithRetry(attempt + 1, maxAttempts)
@@ -141,7 +141,7 @@ export default function BandmateCalendar({
             
             if (savedValue === undefined) {
               allVerified = false
-              missingDates.push(normalizedDate)
+                missingDates.push(normalizedDate)
             } else if (savedValue !== is_unavailable) {
               allVerified = false
               mismatchedDates.push(normalizedDate)
@@ -179,11 +179,11 @@ export default function BandmateCalendar({
         setSavedUnavailability(verifiedAvailability)
         // Also sync local unavailability to match verified state for consistency
         setUnavailability(new Map(verifiedAvailability))
-        
-        // Show success message
-        setToastMessage(`Your changes have been saved and will appear on ${bandName}'s calendar.`)
-        setToastType('success')
-        setShowToast(true)
+      
+      // Show success message
+      setToastMessage(`Your changes have been saved and will appear on ${bandName}'s calendar.`)
+      setToastType('success')
+      setShowToast(true)
       } else {
         // Verification failed after all retries - don't update state, show error
         throw new Error('Unable to verify that your changes were saved. Please refresh the page and try again. Your changes are still pending.')
