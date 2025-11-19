@@ -1,76 +1,61 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function AuthCallback() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const handleCallback = async () => {
       const supabase = createClient()
       
-      // Check for OAuth callback parameters in hash
-      const hashParams = new URLSearchParams(window.location.hash.substring(1))
-      const accessToken = hashParams.get('access_token')
-      const refreshToken = hashParams.get('refresh_token')
-      
-      // Check for code in query params (PKCE flow)
-      const urlParams = new URLSearchParams(window.location.search)
-      const code = urlParams.get('code')
+      // Get code from query params (PKCE flow)
+      const code = searchParams.get('code')
       
       if (code) {
-        // Exchange code for session (PKCE flow)
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
-        if (error) {
-          console.error('Error exchanging code:', error)
+        try {
+          // Exchange code for session (PKCE flow)
+          const { error } = await supabase.auth.exchangeCodeForSession(code)
+          
+          if (error) {
+            console.error('Error exchanging code:', error)
+            // Clean up URL and redirect to login with error
+            window.history.replaceState({}, '', '/auth/callback')
+            router.push('/login?error=auth_failed')
+            return
+          }
+          
+          // Clean up URL by removing query params
+          window.history.replaceState({}, '', '/auth/callback')
+          
+          // Redirect to dashboard after successful exchange
+          router.push('/dashboard')
+          router.refresh()
+        } catch (err) {
+          console.error('Unexpected error during auth callback:', err)
+          window.history.replaceState({}, '', '/auth/callback')
           router.push('/login?error=auth_failed')
-          return
         }
-        // Redirect after successful exchange
-        router.push('/dashboard')
-        router.refresh()
-        return
-      }
-      
-      if (accessToken && refreshToken) {
-        // Direct token flow (shouldn't happen with PKCE, but handle it)
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        })
-        if (error) {
-          console.error('Error setting session:', error)
-          router.push('/login?error=auth_failed')
-          return
-        }
-        router.push('/dashboard')
-        router.refresh()
       } else {
-        // Check if session already exists (might have been set by middleware)
+        // No code parameter - check if session already exists
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
+          window.history.replaceState({}, '', '/auth/callback')
           router.push('/dashboard')
           router.refresh()
         } else {
-          // Wait a bit for middleware to process, then check again
-          setTimeout(() => {
-            supabase.auth.getSession().then(({ data: { session } }) => {
-              if (session) {
-                router.push('/dashboard')
-                router.refresh()
-              } else {
-                router.push('/login?error=auth_failed')
-              }
-            })
-          }, 1000)
+          // No code and no session - redirect to login
+          window.history.replaceState({}, '', '/auth/callback')
+          router.push('/login?error=auth_failed')
         }
       }
     }
 
     handleCallback()
-  }, [router])
+  }, [router, searchParams])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

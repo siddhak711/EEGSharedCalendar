@@ -5,8 +5,9 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const supabase = createClient()
   
-  // Use a callback page that will handle the OAuth response
-  const redirectTo = `${requestUrl.origin}/auth/callback`
+  // Use NEXT_PUBLIC_SITE_URL for Vercel, fallback to request origin for local dev
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin
+  const redirectTo = `${siteUrl}/auth/callback`
   
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
