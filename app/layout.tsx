@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { PostHogProvider } from '../components/PostHogProvider'
 
 export const metadata: Metadata = {
   title: 'Band Calendar | NYC Band Scheduling',
@@ -13,8 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
+      </body>
     </html>
   )
 }
-

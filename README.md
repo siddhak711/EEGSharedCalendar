@@ -55,6 +55,8 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_POSTHOG_KEY=your_posthog_project_api_key
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 ```
 
 ### 5. Run Development Server
@@ -76,6 +78,8 @@ Visit `http://localhost:3000` to see the application.
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `NEXT_PUBLIC_APP_URL` (your Vercel deployment URL)
+   - `NEXT_PUBLIC_POSTHOG_KEY` (your PostHog project API key)
+   - `NEXT_PUBLIC_POSTHOG_HOST` (your PostHog host, e.g., `https://us.i.posthog.com`)
 4. Update Supabase OAuth redirect URL to include your Vercel URL
 5. Deploy
 
