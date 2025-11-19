@@ -32,9 +32,23 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
     try {
       const response = await fetch(`/api/calendar/band/${bandId}`)
       if (!response.ok) {
-        throw new Error('Failed to refresh calendar data')
+        // Try to parse error message from response
+        let errorMessage = 'Failed to refresh calendar data'
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          // If JSON parsing fails, use status text
+          errorMessage = response.statusText || errorMessage
+        }
+        throw new Error(errorMessage)
       }
       const data = await response.json()
+      
+      // Validate response structure
+      if (!data || typeof data.availability !== 'object') {
+        throw new Error('Invalid response format from server')
+      }
       
       // Convert Record to Map, normalizing dates to YYYY-MM-DD format
       const availabilityMap = new Map<string, boolean>()
@@ -44,6 +58,7 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
       
       setAvailability(availabilityMap)
       setLastUpdated(new Date())
+      setError(null) // Clear any previous errors on success
     } catch (error) {
       console.error('Error refreshing calendar data:', error)
       setError(error instanceof Error ? error.message : 'Failed to refresh calendar')

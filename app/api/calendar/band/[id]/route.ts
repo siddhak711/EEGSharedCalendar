@@ -32,14 +32,21 @@ export async function GET(
 
     if (availabilityError) {
       console.error('Error fetching final availability:', availabilityError)
-      return NextResponse.json({ error: 'Failed to fetch calendar' }, { status: 500 })
+      // Provide more detailed error message for debugging
+      const errorMessage = availabilityError.message || 'Failed to fetch calendar data from database'
+      return NextResponse.json({ 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? availabilityError : undefined
+      }, { status: 500 })
     }
 
     // Convert to Record format for JSON, normalizing dates to YYYY-MM-DD
     const availability: Record<string, boolean> = {}
-    ;(finalAvailability || []).forEach((avail: { date: string | Date; is_available: boolean }) => {
+    if (finalAvailability && Array.isArray(finalAvailability)) {
+      finalAvailability.forEach((avail: { date: string | Date; is_available: boolean }) => {
       availability[normalizeDate(avail.date)] = avail.is_available
     })
+    }
 
     return NextResponse.json({
       availability,
@@ -47,7 +54,11 @@ export async function GET(
     })
   } catch (error) {
     console.error('Error in GET /api/calendar/band/[id]:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ 
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? String(error) : undefined
+    }, { status: 500 })
   }
 }
 
