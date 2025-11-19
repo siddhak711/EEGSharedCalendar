@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { normalizeDate } from '@/lib/utils/dateUtils'
 
+// Force dynamic rendering since this route uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 // GET - Get main calendar data (all submitted bands with availability)
 export async function GET() {
   try {
