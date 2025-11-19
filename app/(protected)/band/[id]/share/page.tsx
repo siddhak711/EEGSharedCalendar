@@ -46,7 +46,7 @@ export default async function ShareBandPage({
         <div className="mb-8">
           <h2 className="text-4xl font-display font-bold text-wavelength-text mb-3">{band.name}</h2>
           <p className="text-lg text-wavelength-text-muted font-normal">
-            Share a link with your bandmates so they can mark when they're unavailable.
+            Share a link with your bandmates so they can mark when they&apos;re unavailable.
             Each bandmate will get their own unique link.
           </p>
         </div>

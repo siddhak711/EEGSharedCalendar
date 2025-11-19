@@ -298,7 +298,7 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
       {!readOnly && (
         <div className="mt-6 p-4 bg-wavelength-light/30 border border-wavelength-primary/20 rounded-xl">
           <p className="text-sm text-wavelength-text-muted font-normal">
-            <strong className="text-wavelength-text">Tip:</strong> Click on any date to toggle availability. Green indicates available, red indicates unavailable. This calendar shows your band's availability including bandmate unavailability - dates will appear red if any bandmate is unavailable.
+            <strong className="text-wavelength-text">Tip:</strong> Click on any date to toggle availability. Green indicates available, red indicates unavailable. This calendar shows your band&apos;s availability including bandmate unavailability - dates will appear red if any bandmate is unavailable.
             {showRefreshButton && (
               <> Click the refresh button to see the latest bandmate availability updates.</>
             )}

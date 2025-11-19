@@ -4,7 +4,7 @@ export default function NotFound() {
       <div className="text-center">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Invalid Link</h1>
         <p className="text-gray-600 mb-4">
-          The bandmate link you're trying to access is invalid or has expired.
+          The bandmate link you&apos;re trying to access is invalid or has expired.
         </p>
         <p className="text-sm text-gray-500">
           Please contact your band leader for a new link.

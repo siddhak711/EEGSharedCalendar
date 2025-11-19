@@ -75,7 +75,7 @@ export default async function BandmatePage({
             {bandmate.name ? `${bandmate.name}'s ` : ''}Availability
           </p>
           <p className="text-base text-wavelength-text-muted mt-2 font-normal">
-            Mark dates when you're unavailable.
+            Mark dates when you&apos;re unavailable.
           </p>
         </div>
 

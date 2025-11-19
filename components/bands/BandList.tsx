@@ -38,7 +38,7 @@ export default function BandList({ bands }: BandListProps) {
     return (
       <div className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-3xl p-12 border border-white/20 shadow-2xl text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
-        <p className="relative z-10 text-lg text-gray-400 font-normal">You haven't created any bands yet. Create your first band above!</p>
+        <p className="relative z-10 text-lg text-gray-400 font-normal">You haven&apos;t created any bands yet. Create your first band above!</p>
       </div>
     )
   }

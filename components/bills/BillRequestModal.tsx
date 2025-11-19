@@ -98,7 +98,7 @@ export default function BillRequestModal({
         <div className="bg-wavelength-card rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
           <h2 className="text-xl font-display font-bold text-wavelength-text mb-4">No Submitted Bands</h2>
           <p className="text-wavelength-text-muted mb-6 font-normal">
-            You need to submit at least one band's calendar before requesting to join a bill.
+            You need to submit at least one band&apos;s calendar before requesting to join a bill.
           </p>
           <button
             onClick={onClose}

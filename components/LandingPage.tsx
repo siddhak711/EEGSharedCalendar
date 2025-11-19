@@ -323,7 +323,7 @@ export default function LandingPage() {
 
           {/* Subheading */}
           <p className="text-base sm:text-lg md:text-xl text-[#9CA3AF] max-w-[700px] mx-auto leading-relaxed px-2 overflow-visible">
-            Sync your band's schedule, find the perfect gig dates, and keep everyone in harmony. 
+            Sync your band&apos;s schedule, find the perfect gig dates, and keep everyone in harmony. 
             The coolest way for bands to manage availability and collaborate on shows.
           </p>
 

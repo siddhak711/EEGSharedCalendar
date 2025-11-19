@@ -67,7 +67,7 @@ export default async function BillsPage() {
         <div className="mb-8">
           <h2 className="text-4xl font-display font-bold text-wavelength-text mb-3">Bill Requests</h2>
           <p className="text-lg text-wavelength-text-muted font-normal">
-            Manage bill requests you've sent and received from other bands.
+            Manage bill requests you&apos;ve sent and received from other bands.
           </p>
         </div>
 

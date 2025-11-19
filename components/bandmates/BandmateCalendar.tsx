@@ -399,7 +399,7 @@ export default function BandmateCalendar({
       })}
       <div className="mt-6 p-4 bg-wavelength-light/30 border border-wavelength-primary/20 rounded-xl">
         <p className="text-sm text-wavelength-text-muted font-normal">
-          <strong className="text-wavelength-text">Tip:</strong> Click on any date to mark when you're unavailable. Remember to click "Submit Changes" to save your updates. Dates marked as unavailable by the band leader cannot be changed.
+          <strong className="text-wavelength-text">Tip:</strong> Click on any date to mark when you&apos;re unavailable. Remember to click &quot;Submit Changes&quot; to save your updates. Dates marked as unavailable by the band leader cannot be changed.
         </p>
       </div>
     </div>

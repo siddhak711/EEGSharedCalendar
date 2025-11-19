@@ -18,7 +18,7 @@ export default function NotFound() {
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Band Not Found</h1>
           <p className="text-gray-600 mb-8">
-            The band you're looking for doesn't exist or you don't have permission to access it.
+            The band you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to access it.
           </p>
           <Link
             href="/dashboard"
