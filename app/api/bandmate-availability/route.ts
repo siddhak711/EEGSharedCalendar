@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { normalizeDate } from '@/lib/utils/dateUtils'
 
 // POST - Update bandmate availability (no auth required, uses token)
 export async function POST(request: Request) {
@@ -15,10 +16,13 @@ export async function POST(request: Request) {
       )
     }
 
+    // Normalize date to ensure YYYY-MM-DD format before passing to database
+    const normalizedDate = normalizeDate(date)
+
     // Use database function to update availability (bypasses RLS)
     const { data, error } = await supabase.rpc('update_bandmate_availability_by_token', {
       p_token: token,
-      p_date: date,
+      p_date: normalizedDate,
       p_is_unavailable: is_unavailable,
     })
 

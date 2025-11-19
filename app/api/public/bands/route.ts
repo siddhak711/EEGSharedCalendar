@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { Database } from '@/types/database'
+import { normalizeDate } from '@/lib/utils/dateUtils'
 
 // Public endpoint to get all submitted bands and their calendars
 export async function GET() {
@@ -50,7 +51,7 @@ export async function GET() {
       ;(calendars || [])
         .filter((cal) => cal.band_id === band.id)
         .forEach((cal) => {
-          bandCalendar.set(cal.date, cal.is_available)
+          bandCalendar.set(normalizeDate(cal.date), cal.is_available)
         })
       calendarsByBand.set(band.id, bandCalendar)
     })

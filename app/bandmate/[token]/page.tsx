@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import BandmateCalendar from '@/components/bandmates/BandmateCalendar'
+import { normalizeDate } from '@/lib/utils/dateUtils'
 
 export default async function BandmatePage({
   params,
@@ -49,12 +50,18 @@ export default async function BandmatePage({
     console.error('Error fetching bandmate availability:', availabilityError)
   }
 
-  const bandCalendarMap = new Map(
-    (bandCalendar || []).map((item) => [item.date, item.is_available])
+  const bandCalendarMap = new Map<string, boolean>(
+    (bandCalendar || []).map((item: { date: string | Date; is_available: boolean }) => [
+      normalizeDate(item.date),
+      item.is_available,
+    ])
   )
 
-  const bandmateAvailabilityMap = new Map(
-    (bandmateAvailability || []).map((item) => [item.date, item.is_unavailable])
+  const bandmateAvailabilityMap = new Map<string, boolean>(
+    (bandmateAvailability || []).map((item: { date: string | Date; is_unavailable: boolean }) => [
+      normalizeDate(item.date),
+      item.is_unavailable,
+    ])
   )
 
   return (

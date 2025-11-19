@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Band } from '@/types'
-import { getWeekendNightsForNext6Months, groupDatesByMonth, groupDatesByWeeks, formatDateForGrid, getMonthName } from '@/lib/utils/dateUtils'
+import { getWeekendNightsForNext6Months, groupDatesByMonth, groupDatesByWeeks, formatDateForGrid, getMonthName, normalizeDate } from '@/lib/utils/dateUtils'
 import BillRequestModal from '@/components/bills/BillRequestModal'
 
 interface MainCalendarProps {
@@ -126,7 +126,8 @@ export default function MainCalendar({
     Object.entries(data.calendarsByBand).forEach(([bandId, dateMap]) => {
       const dateMapObj = new Map<string, boolean>()
       Object.entries(dateMap).forEach(([date, isAvailable]) => {
-        dateMapObj.set(date, isAvailable)
+        // Normalize date to ensure consistent YYYY-MM-DD format
+        dateMapObj.set(normalizeDate(date), isAvailable)
       })
       calendarsByBandMap.set(bandId, dateMapObj)
     })
@@ -236,9 +237,9 @@ export default function MainCalendar({
           </button>
           
           <div className="flex flex-col items-center gap-2">
-            <h3 className="text-3xl font-display font-bold text-white">
-              {getMonthName(currentMonthDates[0])}
-            </h3>
+          <h3 className="text-3xl font-display font-bold text-white">
+            {getMonthName(currentMonthDates[0])}
+          </h3>
             {lastUpdated && (
               <p className="text-xs text-gray-400">
                 Updated {lastUpdated.toLocaleTimeString()}
@@ -280,15 +281,15 @@ export default function MainCalendar({
                 </svg>
               )}
             </button>
-            <button
-              onClick={goToNextMonth}
-              disabled={currentMonthIndex === monthEntries.length - 1}
-              className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+          <button
+            onClick={goToNextMonth}
+            disabled={currentMonthIndex === monthEntries.length - 1}
+            className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
           </div>
         </div>
       </div>

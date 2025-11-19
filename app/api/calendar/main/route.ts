@@ -1,6 +1,7 @@
 import { getAuthenticatedUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { normalizeDate } from '@/lib/utils/dateUtils'
 
 // GET - Get main calendar data (all submitted bands with availability)
 export async function GET() {
@@ -49,13 +50,13 @@ export async function GET() {
         ;(calendars || [])
           .filter((cal) => cal.band_id === band.id)
           .forEach((cal) => {
-            bandCalendar[cal.date] = cal.is_available
+            bandCalendar[normalizeDate(cal.date)] = cal.is_available
           })
         calendarsByBand[band.id] = bandCalendar
       } else {
         const bandCalendar: Record<string, boolean> = {}
-        ;(finalAvailability || []).forEach((avail: { date: string; is_available: boolean }) => {
-          bandCalendar[avail.date] = avail.is_available
+        ;(finalAvailability || []).forEach((avail: { date: string | Date; is_available: boolean }) => {
+          bandCalendar[normalizeDate(avail.date)] = avail.is_available
         })
         calendarsByBand[band.id] = bandCalendar
       }

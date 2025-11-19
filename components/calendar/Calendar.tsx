@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { getWeekendNightsForNext6Months, groupDatesByMonth, groupDatesByWeeks, formatDateForGrid, getMonthName } from '@/lib/utils/dateUtils'
+import { getWeekendNightsForNext6Months, groupDatesByMonth, groupDatesByWeeks, formatDateForGrid, getMonthName, normalizeDate } from '@/lib/utils/dateUtils'
 import AvailabilityIndicator from './AvailabilityIndicator'
 
 interface CalendarProps {
@@ -36,10 +36,10 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
       }
       const data = await response.json()
       
-      // Convert Record to Map
+      // Convert Record to Map, normalizing dates to YYYY-MM-DD format
       const availabilityMap = new Map<string, boolean>()
       Object.entries(data.availability || {}).forEach(([date, isAvailable]) => {
-        availabilityMap.set(date, isAvailable as boolean)
+        availabilityMap.set(normalizeDate(date), isAvailable as boolean)
       })
       
       setAvailability(availabilityMap)

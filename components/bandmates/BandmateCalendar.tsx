@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { getWeekendNightsForNext6Months, groupDatesByMonth, groupDatesByWeeks, formatDateForGrid, getMonthName } from '@/lib/utils/dateUtils'
+import { getWeekendNightsForNext6Months, groupDatesByMonth, groupDatesByWeeks, formatDateForGrid, getMonthName, normalizeDate } from '@/lib/utils/dateUtils'
 import Toast from '@/components/ui/Toast'
 
 interface BandmateCalendarProps {
@@ -75,19 +75,19 @@ export default function BandmateCalendar({
       // Submit all changes sequentially
       const results = await Promise.all(
         unsavedChanges.map(async ({ date, is_unavailable }) => {
-          const response = await fetch('/api/bandmate-availability', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              token,
-              date,
-              is_unavailable,
-            }),
-          })
+      const response = await fetch('/api/bandmate-availability', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token,
+          date: normalizeDate(date), // Normalize date before sending to API
+          is_unavailable,
+        }),
+      })
 
-          if (!response.ok) {
+      if (!response.ok) {
             throw new Error(`Failed to update availability for ${date}`)
           }
 

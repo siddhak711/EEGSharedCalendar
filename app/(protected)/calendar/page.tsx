@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Navbar from '@/components/navbar/Navbar'
 import MainCalendar from '@/components/calendar/MainCalendar'
+import { normalizeDate } from '@/lib/utils/dateUtils'
 
 export default async function MainCalendarPage() {
   const user = await getAuthenticatedUser()
@@ -48,13 +49,13 @@ export default async function MainCalendarPage() {
       ;(calendars || [])
         .filter((cal) => cal.band_id === band.id)
         .forEach((cal) => {
-          bandCalendar.set(cal.date, cal.is_available)
+          bandCalendar.set(normalizeDate(cal.date), cal.is_available)
         })
       calendarsByBand.set(band.id, bandCalendar)
     } else {
       const bandCalendar = new Map<string, boolean>()
-      ;(finalAvailability || []).forEach((avail: { date: string; is_available: boolean }) => {
-        bandCalendar.set(avail.date, avail.is_available)
+      ;(finalAvailability || []).forEach((avail: { date: string | Date; is_available: boolean }) => {
+        bandCalendar.set(normalizeDate(avail.date), avail.is_available)
       })
       calendarsByBand.set(band.id, bandCalendar)
     }

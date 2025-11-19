@@ -124,10 +124,11 @@ DECLARE
   v_availability_id UUID;
 BEGIN
   -- Upsert availability in a single query using subquery to get bandmate_id
+  -- Cast p_date explicitly to DATE to ensure no timezone issues
   INSERT INTO bandmate_availability (bandmate_id, date, is_unavailable)
   SELECT 
     bm.id,
-    p_date,
+    p_date::DATE,
     p_is_unavailable
   FROM bandmates bm
   WHERE bm.token = p_token
@@ -185,21 +186,21 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT 
-    bc.date,
+    bc.date::DATE,
     CASE 
       WHEN bc.is_available = TRUE AND NOT EXISTS (
         SELECT 1 
         FROM bandmate_availability ba
         JOIN bandmates bm ON bm.id = ba.bandmate_id
         WHERE bm.band_id = p_band_id
-        AND ba.date = bc.date
+        AND ba.date::DATE = bc.date::DATE
         AND ba.is_unavailable = TRUE
       ) THEN TRUE
       ELSE FALSE
     END as is_available
   FROM band_calendars bc
   WHERE bc.band_id = p_band_id
-  ORDER BY bc.date ASC;
+  ORDER BY bc.date::DATE ASC;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

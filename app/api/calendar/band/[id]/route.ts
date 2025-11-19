@@ -1,6 +1,7 @@
 import { getAuthenticatedUser } from '@/lib/auth'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { normalizeDate } from '@/lib/utils/dateUtils'
 
 // GET - Get band calendar with bandmate availability factored in
 export async function GET(
@@ -34,10 +35,10 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch calendar' }, { status: 500 })
     }
 
-    // Convert to Record format for JSON
+    // Convert to Record format for JSON, normalizing dates to YYYY-MM-DD
     const availability: Record<string, boolean> = {}
-    ;(finalAvailability || []).forEach((avail: { date: string; is_available: boolean }) => {
-      availability[avail.date] = avail.is_available
+    ;(finalAvailability || []).forEach((avail: { date: string | Date; is_available: boolean }) => {
+      availability[normalizeDate(avail.date)] = avail.is_available
     })
 
     return NextResponse.json({
