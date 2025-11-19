@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Navbar from '@/components/navbar/Navbar'
 import MainCalendar from '@/components/calendar/MainCalendar'
 import { normalizeDate } from '@/lib/utils/dateUtils'
+import { Band } from '@/types'
 
 export default async function MainCalendarPage() {
   const user = await getAuthenticatedUser()
@@ -15,6 +16,7 @@ export default async function MainCalendarPage() {
     .select('*')
     .eq('calendar_submitted', true)
     .order('name', { ascending: true })
+    .returns<Band[]>()
 
   if (bandsError) {
     console.error('Error fetching bands:', bandsError)
@@ -67,6 +69,7 @@ export default async function MainCalendarPage() {
     .select('*')
     .eq('leader_id', user.id)
     .eq('calendar_submitted', true)
+    .returns<Band[]>()
 
   if (userBandsError) {
     console.error('Error fetching user bands:', userBandsError)

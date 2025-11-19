@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { Database } from '@/types/database'
 import { normalizeDate } from '@/lib/utils/dateUtils'
+import { Band, BandCalendar } from '@/types'
 
 // Public endpoint to get all submitted bands and their calendars
 export async function GET() {
@@ -24,6 +25,7 @@ export async function GET() {
       .select('*')
       .eq('calendar_submitted', true)
       .order('name', { ascending: true })
+      .returns<Band[]>()
 
     if (bandsError) {
       console.error('Error fetching bands:', bandsError)
@@ -37,6 +39,7 @@ export async function GET() {
       .select('*')
       .in('band_id', bandIds.length > 0 ? bandIds : ['00000000-0000-0000-0000-000000000000'])
       .order('date', { ascending: true })
+      .returns<BandCalendar[]>()
 
     if (calendarsError) {
       console.error('Error fetching calendars:', calendarsError)
