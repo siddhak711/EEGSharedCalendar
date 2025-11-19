@@ -58,7 +58,7 @@ export default function Navbar() {
             {/* Logo and Desktop Navigation */}
             <div className="flex items-center gap-4 md:gap-6">
               <h1 className="text-xl sm:text-2xl font-display font-bold text-gradient leading-tight">
-                WaveLength
+                SoundCheck
               </h1>
               {/* Desktop Navigation Links */}
               <div className="hidden md:flex items-center gap-6">

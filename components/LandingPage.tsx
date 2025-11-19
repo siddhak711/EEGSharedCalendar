@@ -306,7 +306,7 @@ export default function LandingPage() {
               backgroundClip: 'text',
             }}
           >
-            WaveLength
+            SoundCheck
           </h1>
         </div>
       </div>

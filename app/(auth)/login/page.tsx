@@ -20,7 +20,7 @@ export default async function LoginPage({
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h1 className="text-5xl font-display font-bold text-white mb-4">
-            WaveLength
+            SoundCheck
           </h1>
           <p className="text-lg text-wavelength-text-muted font-normal">
             The coolest way for NYC bands to find bands for their bills
