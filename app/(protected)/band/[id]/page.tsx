@@ -81,7 +81,7 @@ export default async function BandCalendarPage({
             </div>
             {!band.calendar_submitted && (
               <div className="sm:flex-shrink-0">
-                <SubmitCalendarButton bandId={band.id} />
+              <SubmitCalendarButton bandId={band.id} />
               </div>
             )}
           </div>

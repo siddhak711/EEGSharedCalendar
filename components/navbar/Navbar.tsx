@@ -52,28 +52,28 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="w-full flex justify-center px-4 sm:px-6 lg:px-8 py-4">
-        <div className="w-full max-w-7xl">
+    <nav className="w-full flex justify-center px-4 sm:px-6 lg:px-8 py-4">
+      <div className="w-full max-w-7xl">
           <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 px-4 sm:px-6 py-3.5 flex items-center justify-between overflow-visible">
             {/* Logo and Desktop Navigation */}
             <div className="flex items-center gap-4 md:gap-6">
               <h1 className="text-xl sm:text-2xl font-display font-bold text-gradient leading-tight">
                 SoundCheck
-              </h1>
+            </h1>
               {/* Desktop Navigation Links */}
               <div className="hidden md:flex items-center gap-6">
                 {navLinks.map((link) => (
-                  <Link
+            <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive(link.href)
-                        ? 'bg-gray-800/80 text-white'
-                        : 'text-white hover:text-white/90'
-                    }`}
-                  >
+                  ? 'bg-gray-800/80 text-white'
+                  : 'text-white hover:text-white/90'
+              }`}
+            >
                     {link.label}
-                  </Link>
+            </Link>
                 ))}
               </div>
             </div>
@@ -172,18 +172,18 @@ export default function Navbar() {
           <nav className="flex-1 overflow-y-auto p-6">
             <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
-                <Link
+            <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
                     isActive(link.href)
-                      ? 'bg-gray-800/80 text-white'
+                  ? 'bg-gray-800/80 text-white'
                       : 'text-white hover:bg-gray-800/50 active:bg-gray-800/70'
-                  }`}
-                >
+              }`}
+            >
                   {link.label}
-                </Link>
+            </Link>
               ))}
             </div>
           </nav>

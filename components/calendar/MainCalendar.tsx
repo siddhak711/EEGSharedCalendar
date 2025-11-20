@@ -228,45 +228,49 @@ export default function MainCalendar({
       {/* Month Navigation with Refresh Button */}
       <div className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 shadow-2xl overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
-        <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
-          <div className="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-0">
-            <button
-              onClick={goToPreviousMonth}
-              disabled={currentMonthIndex === 0}
-              className="px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 min-h-[44px] touch-manipulation flex items-center justify-center"
-            >
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <div className="flex flex-col items-center gap-1 sm:gap-2 flex-1 sm:flex-none">
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-white text-center">
-                {getMonthName(currentMonthDates[0])}
-              </h3>
-              {lastUpdated && (
-                <p className="text-xs text-gray-400">
-                  Updated {lastUpdated.toLocaleTimeString()}
-                </p>
-              )}
-            </div>
-            
-            <button
-              onClick={goToNextMonth}
-              disabled={currentMonthIndex === monthEntries.length - 1}
-              className="px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 min-h-[44px] touch-manipulation flex items-center justify-center"
-            >
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+        <div className="relative z-10">
+          {/* Mobile Layout: Stacked */}
+          <div className="flex flex-col gap-4 sm:hidden">
+            {/* Month name and navigation buttons row */}
+            <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={goToPreviousMonth}
+            disabled={currentMonthIndex === 0}
+                className="px-3 py-2.5 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 active:scale-95 disabled:hover:scale-100 min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center flex-shrink-0"
+          >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+              <div className="flex flex-col items-center gap-1 flex-1 min-w-0 px-2">
+                <h3 className="text-lg font-display font-bold text-white text-center truncate w-full">
+            {getMonthName(currentMonthDates[0])}
+          </h3>
+            {lastUpdated && (
+                  <p className="text-xs text-gray-400 text-center truncate w-full">
+                Updated {lastUpdated.toLocaleTimeString()}
+              </p>
+            )}
           </div>
           
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
+              <button
+                onClick={goToNextMonth}
+                disabled={currentMonthIndex === monthEntries.length - 1}
+                className="px-3 py-2.5 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 active:scale-95 disabled:hover:scale-100 min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center flex-shrink-0"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Refresh button row */}
+            <div className="flex items-center justify-center w-full">
             <button
               onClick={refreshCalendarData}
               disabled={isRefreshing}
-              className="px-4 py-2.5 sm:py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 flex items-center gap-2 min-h-[44px] touch-manipulation"
+                className="px-4 py-2.5 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 active:scale-95 flex items-center gap-2 min-h-[44px] touch-manipulation"
               title="Refresh calendar data"
             >
               {isRefreshing ? (
@@ -295,8 +299,82 @@ export default function MainCalendar({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               )}
-              <span className="text-sm hidden sm:inline">Refresh</span>
+                <span className="text-sm">Refresh</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop Layout: Horizontal */}
+          <div className="hidden sm:flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 flex-1">
+              <button
+                onClick={goToPreviousMonth}
+                disabled={currentMonthIndex === 0}
+                className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center flex-shrink-0"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
             </button>
+              
+              <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                <h3 className="text-2xl md:text-3xl font-display font-bold text-white text-center">
+                  {getMonthName(currentMonthDates[0])}
+                </h3>
+                {lastUpdated && (
+                  <p className="text-xs text-gray-400 text-center">
+                    Updated {lastUpdated.toLocaleTimeString()}
+                  </p>
+                )}
+              </div>
+              
+          <button
+            onClick={goToNextMonth}
+            disabled={currentMonthIndex === monthEntries.length - 1}
+                className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center flex-shrink-0"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+            </div>
+            
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <button
+                onClick={refreshCalendarData}
+                disabled={isRefreshing}
+                className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/20 text-white hover:bg-black/60 active:bg-black/70 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100 flex items-center gap-2 min-h-[44px] touch-manipulation"
+                title="Refresh calendar data"
+              >
+                {isRefreshing ? (
+                  <svg
+                    className="animate-spin h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                )}
+                <span className="text-sm">Refresh</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -305,18 +383,18 @@ export default function MainCalendar({
       <div 
         ref={calendarRef}
         key={currentMonthKey}
-        className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10 border border-white/20 shadow-2xl overflow-hidden"
+        className="relative bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10 border border-white/20 shadow-2xl overflow-x-auto"
       >
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#6C5CE7]/5 via-transparent to-[#00A8FF]/5 animate-pulse-slow"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#7C3AED]/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#00A8FF]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         
-        <div className="relative z-10">
+        <div className="relative z-10 min-w-[350px]">
           {/* Day headers */}
-          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2" style={{ minWidth: '350px' }}>
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div key={day} className="text-center text-xs sm:text-sm font-semibold text-gray-300 py-1 sm:py-2">
+              <div key={day} className="text-center text-xs sm:text-sm font-semibold text-gray-300 py-1 sm:py-2 min-w-[44px]">
                 {day}
               </div>
             ))}
@@ -324,10 +402,10 @@ export default function MainCalendar({
           {/* Calendar weeks */}
           <div className="space-y-1 sm:space-y-2">
             {groupDatesByWeeks(currentMonthDates).map((week, weekIndex) => (
-              <div key={weekIndex} className="grid grid-cols-7 gap-1 sm:gap-2">
+              <div key={weekIndex} className="grid grid-cols-7 gap-1 sm:gap-2" style={{ minWidth: '350px' }}>
                 {week.map((date, dayIndex) => {
                   if (date === null) {
-                    return <div key={dayIndex} className="p-2 sm:p-4 md:p-5 rounded-2xl" />
+                    return <div key={dayIndex} className="p-2 sm:p-3 md:p-4 lg:p-5 rounded-2xl min-w-[44px] min-h-[44px]" />
                   }
                   const availableBands = getAvailableBandsForDate(date)
                   const hasAvailableBands = availableBands.length > 0
@@ -339,14 +417,14 @@ export default function MainCalendar({
                   return (
                     <div
                       key={date}
-                      className="relative"
+                      className="relative min-w-[44px]"
                       onMouseEnter={() => hasAvailableBands && setHoveredDate(date)}
                       onMouseLeave={() => setHoveredDate(null)}
                     >
                       <button
                         onClick={() => hasAvailableBands && handleDateClick(date)}
                         disabled={!hasAvailableBands}
-                        className={`relative w-full p-2 sm:p-4 md:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 backdrop-blur-sm overflow-visible group min-h-[44px] touch-manipulation ${
+                        className={`relative w-full p-2 sm:p-3 md:p-4 lg:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 backdrop-blur-sm overflow-visible group min-h-[44px] min-w-[44px] touch-manipulation flex flex-col items-center justify-center ${
                           hasAvailableBands
                             ? 'border-green-500/50 bg-gradient-to-br from-green-500/20 via-green-500/10 to-green-500/5 shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 hover:scale-105 active:scale-95 cursor-pointer'
                             : 'border-red-500/50 bg-gradient-to-br from-red-500/20 via-red-500/10 to-red-500/5 cursor-default'
@@ -357,15 +435,15 @@ export default function MainCalendar({
                           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                         )}
                         
-                        <div className="relative z-10">
-                          <div className="mb-1 sm:mb-2 md:mb-3">
-                            <span className={`text-xs font-semibold uppercase tracking-wider ${
+                        <div className="relative z-10 w-full flex flex-col items-center justify-center gap-0.5 sm:gap-1">
+                          <div className="w-full">
+                            <span className={`text-[10px] sm:text-xs font-semibold uppercase tracking-wider block text-center leading-tight ${
                               hasAvailableBands ? 'text-white' : 'text-red-200'
                             }`}>
                               {getDayName(date)}
                             </span>
                           </div>
-                          <div className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold transition-colors duration-300 ${
+                          <div className={`text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold transition-colors duration-300 leading-none text-center ${
                             hasAvailableBands ? 'text-white' : 'text-red-200'
                           }`}>
                             {formatDateForGrid(date)}

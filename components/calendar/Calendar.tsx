@@ -219,49 +219,54 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
             <h3 className="text-xl sm:text-2xl font-display font-bold text-wavelength-text mb-4 sm:mb-6">
               {getMonthName(dates[0])}
             </h3>
-            {/* Day headers */}
-            <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div key={day} className="text-center text-xs sm:text-sm font-semibold text-wavelength-text-muted py-1 sm:py-2">
-                  {day}
+            {/* Calendar with horizontal scroll on mobile */}
+            <div className="overflow-x-auto -mx-2 px-2">
+              <div className="min-w-[350px]">
+                {/* Day headers */}
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div key={day} className="text-center text-xs sm:text-sm font-semibold text-wavelength-text-muted py-1 sm:py-2 min-w-[44px]">
+                      {day}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            {/* Calendar weeks */}
-            <div className="space-y-1 sm:space-y-2">
-              {weeks.map((week, weekIndex) => (
-                <div key={weekIndex} className="grid grid-cols-7 gap-1 sm:gap-2">
-                  {week.map((date, dayIndex) => {
-                    if (date === null) {
-                      return <div key={dayIndex} className="p-2 sm:p-4 rounded-xl" />
-                    }
-                    const isAvailable = availability.get(date) ?? true
-                    const isLoading = loading.has(date)
-                    
-                    return (
-                      <button
-                        key={date}
-                        onClick={() => toggleAvailability(date)}
-                        disabled={readOnly || isLoading}
-                        className={`relative p-2 sm:p-4 rounded-xl border transition-all min-h-[44px] touch-manipulation ${
-                          readOnly
-                            ? 'cursor-default'
-                            : 'cursor-pointer hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-wavelength-primary/50'
-                        } ${
-                          isAvailable
-                            ? 'border-green-500/30 bg-green-500/10 hover:bg-green-500/20 active:bg-green-500/25'
-                            : 'border-red-500/30 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/25'
-                        } ${isLoading ? 'opacity-50' : ''}`}
-                      >
-                        <div className="flex items-center justify-between mb-1 sm:mb-2">
-                          <span className="text-xs sm:text-sm font-semibold text-wavelength-text">
-                            {getDayName(date)}
-                          </span>
-                          <AvailabilityIndicator isAvailable={isAvailable} />
-                        </div>
-                        <div className="text-base sm:text-lg font-bold text-wavelength-text">
-                          {formatDateForGrid(date)}
-                        </div>
+                {/* Calendar weeks */}
+                <div className="space-y-1 sm:space-y-2">
+                  {weeks.map((week, weekIndex) => (
+                    <div key={weekIndex} className="grid grid-cols-7 gap-1 sm:gap-2">
+                    {week.map((date, dayIndex) => {
+                      if (date === null) {
+                        return <div key={dayIndex} className="p-2 sm:p-3 md:p-4 rounded-xl min-w-[44px] min-h-[44px]" />
+                      }
+                      const isAvailable = availability.get(date) ?? true
+                      const isLoading = loading.has(date)
+                      
+                      return (
+                        <button
+                          key={date}
+                          onClick={() => toggleAvailability(date)}
+                          disabled={readOnly || isLoading}
+                          className={`relative p-2 sm:p-3 md:p-4 rounded-xl border transition-all min-h-[44px] min-w-[44px] touch-manipulation flex flex-col items-center justify-center ${
+                            readOnly
+                              ? 'cursor-default'
+                              : 'cursor-pointer hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-wavelength-primary/50'
+                          } ${
+                            isAvailable
+                              ? 'border-green-500/30 bg-green-500/10 hover:bg-green-500/20 active:bg-green-500/25'
+                              : 'border-red-500/30 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/25'
+                          } ${isLoading ? 'opacity-50' : ''}`}
+                        >
+                          <div className="flex items-center justify-between mb-1 sm:mb-2 w-full">
+                            <span className="text-[10px] sm:text-xs font-semibold text-wavelength-text leading-tight">
+                              {getDayName(date)}
+                            </span>
+                            <div className="hidden sm:block">
+                              <AvailabilityIndicator isAvailable={isAvailable} />
+                            </div>
+                          </div>
+                          <div className="text-sm sm:text-base md:text-lg font-bold text-wavelength-text leading-none">
+                            {formatDateForGrid(date)}
+                          </div>
                         {isLoading && (
                           <div className="absolute inset-0 flex items-center justify-center bg-wavelength-light/50 backdrop-blur-sm rounded-xl">
                             <svg
@@ -289,8 +294,10 @@ export default function Calendar({ bandId, initialAvailability, readOnly = false
                       </button>
                     )
                   })}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         )
